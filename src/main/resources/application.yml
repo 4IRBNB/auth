@@ -3,11 +3,11 @@ spring:
     name: auth
   profiles:
     active: dev
-  config:
-    import: "configserver:http://localhost:18080"
+#  config:
+#    import: "configserver:http://localhost:18080"
 
 server:
-  port: 0
+  port: 19092
 eureka:
   client:
     service-url:
@@ -15,8 +15,8 @@ eureka:
 
 message: "default message" # config server? ???? ?? ?
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include: refresh
+#management:
+#  endpoints:
+#    web:
+#      exposure:
+#        include: refresh
