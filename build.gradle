@@ -34,14 +34,6 @@ dependencies {
     //common-module
     implementation 'com.fourirbnb:common:1.2.2'
 
-    //mapper
-    implementation 'org.mapstruct:mapstruct:1.4.2.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.4.2.Final'
-
-    //h2
-    implementation 'com.h2database:h2'
-    runtimeOnly 'com.h2database:h2'
-
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'
     implementation 'com.fasterxml.jackson.module:jackson-module-parameter-names:2.15.0'
@@ -58,17 +50,16 @@ dependencies {
 //    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 
     // security
-    implementation 'org.springframework.boot:spring-boot-starter-security'
+//    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation("org.springframework.security:spring-security-crypto")
     implementation 'io.jsonwebtoken:jjwt:0.12.6'
 
-    // postgresql
-//	implementation 'org.postgresql:postgresql:42.7.5'
-
+    //DataAccessException
+    implementation 'org.springframework:spring-tx:6.2.5'
     // config
 //	implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'

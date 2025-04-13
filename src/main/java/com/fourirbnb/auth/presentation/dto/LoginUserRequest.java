@@ -3,6 +3,8 @@ package com.fourirbnb.auth.presentation.dto;
 import lombok.Getter;
 
 @Getter
-public enum Role {
-  MASTER, MANAGER, HOST, CUSTOMER
+public class LoginUserRequest {
+
+  String email;
+  String password;
 }

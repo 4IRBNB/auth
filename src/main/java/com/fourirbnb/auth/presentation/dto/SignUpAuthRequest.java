@@ -1,4 +1,4 @@
-package com.fourirbnb.auth.presentation.dto.request;
+package com.fourirbnb.auth.presentation.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SignUpUserRequest {
+public class SignUpAuthRequest {
 
   @NotBlank(message = "아이디 필수")
   @Email(message = "이메일 형식으로 입력해주세요.")
@@ -28,8 +28,7 @@ public class SignUpUserRequest {
 
   @NotBlank(message = "사용자 이름 필수")
   private String username;
-
-  @Email(message = "이메일 형식으로 입력해주세요.")
+  
   private String slackId;
 
   @Pattern(regexp = "^01[0-9]-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 올바르지 않습니다.")

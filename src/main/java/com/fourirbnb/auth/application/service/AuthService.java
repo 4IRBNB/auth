@@ -2,15 +2,22 @@ package com.fourirbnb.auth.application.service;
 
 
 import com.fourirbnb.auth.application.mapper.AuthDtoMapper;
-import com.fourirbnb.auth.application.mapper.AuthMapper;
-import com.fourirbnb.auth.domain.entity.Auth;
-import com.fourirbnb.auth.domain.repository.AuthRepository;
 import com.fourirbnb.auth.infrastructure.UserFeignClient;
-import com.fourirbnb.auth.presentation.dto.request.CreateUserFeignRequest;
-import com.fourirbnb.auth.presentation.dto.request.SignUpUserRequest;
+import com.fourirbnb.auth.presentation.dto.CreateUserInternalRequest;
+import com.fourirbnb.auth.presentation.dto.LoginUserRequest;
+import com.fourirbnb.auth.presentation.dto.LoginUserResponse;
+import com.fourirbnb.auth.presentation.dto.SignUpAuthRequest;
+import com.fourirbnb.common.exception.InternalServerException;
 import com.fourirbnb.common.exception.InvalidParameterException;
+import com.fourirbnb.common.exception.ResourceNotFoundException;
+import feign.FeignException;
+import io.jsonwebtoken.Jwts;
+import java.util.Date;
+import javax.crypto.SecretKey;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,25 +26,58 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthService {
 
-  private final AuthDtoMapper authDtoMapper;
-  private final AuthMapper authMapper;
   private final UserFeignClient userFeignClient;
   private final PasswordEncoder passwordEncoder;
-  private final AuthRepository authRepository;
 
-  //차후 kafka 도입 고려 설계
-  public void signUp(SignUpUserRequest request) {
+
+  @Value("${spring.application.name}")
+  private String issuer;
+
+  @Value("${jwt.access-expiration}")
+  private Long accessExpiration;
+
+  private final SecretKey secretKey;
+
+
+  public void signUp(SignUpAuthRequest request) {
     String hashedPassword = passwordEncoder.encode(request.getPassword());
 
-    CreateUserFeignRequest feignRequest = authDtoMapper.toCreateInternalDto(request);
+    CreateUserInternalRequest feignRequest = AuthDtoMapper.toCreateInternalDto(request,
+        hashedPassword);
+    //상태코드로 분기구분
+    try {
+      userFeignClient.userSignUp(feignRequest);
+    } catch (FeignException e) {
+      if (e.status() == 400) {
+        throw new InvalidParameterException(e.contentUTF8());
+      }
+    } catch (Exception e) {
+      throw new InternalServerException("회원가입 처리 중 서버 오류가 발생했습니다.");
+    }
+  }
 
-    boolean result = userFeignClient.userSignUp(feignRequest);
-
-    if (!result) {
-      throw new InvalidParameterException("이메일이 이미 존재합니다.");
+  public String signIn(LoginUserRequest request) {
+    ResponseEntity<LoginUserResponse> response = userFeignClient.findByEmail(request.getEmail());
+    LoginUserResponse signInDto = response.getBody();
+    if (signInDto == null || signInDto.password() == null) {
+      throw new ResourceNotFoundException("해당 이메일로 가입된 유저가 없습니다.");
+    }
+    if (!passwordEncoder.matches(request.getPassword(), signInDto.password())) {
+      throw new InvalidParameterException("비밀번호가 일치하지 않습니다.");
     }
 
-    Auth auth = authMapper.toEntity(request.getEmail(), hashedPassword);
-    authRepository.save(auth);
+    return createAccessToken(signInDto);
+  }
+
+  //  만료시간 refresh 토큰 도입 이후 짧게 테스트
+  private String createAccessToken(LoginUserResponse signInDto) {
+    return Jwts.builder()
+        .claim("id", signInDto.id())
+        .claim("role", signInDto.role().name())
+        .issuer(issuer)
+        .issuedAt(new Date(System.currentTimeMillis()))
+        .expiration(new Date(System.currentTimeMillis() + accessExpiration))
+        .signWith(secretKey, Jwts.SIG.HS512)
+        .compact();
   }
 }

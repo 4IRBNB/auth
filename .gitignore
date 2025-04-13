@@ -25,7 +25,7 @@ out/
 .classpath
 .project
 bin/
-.env
+.env.properties
 gradle.properties
 
 
