@@ -59,11 +59,13 @@ public class AuthService {
   public String signIn(LoginUserRequest request) {
     ResponseEntity<LoginUserResponse> response = userFeignClient.findByEmail(request.getEmail());
     LoginUserResponse signInDto = response.getBody();
-    if (signInDto == null || signInDto.password() == null) {
-      throw new ResourceNotFoundException("해당 이메일로 가입된 유저가 없습니다.");
+    if (signInDto == null || signInDto.email() == null) {
+      throw new ResourceNotFoundException("회원을 찾을수 없습니다..");
+    } else if (signInDto.password() == null) {
+      throw new ResourceNotFoundException("아이디 또는 비밀번호가 일치하지 않습니다.");
     }
     if (!passwordEncoder.matches(request.getPassword(), signInDto.password())) {
-      throw new InvalidParameterException("비밀번호가 일치하지 않습니다.");
+      throw new InvalidParameterException("아이디 또는 비밀번호가 일치하지 않습니다.");
     }
 
     return createAccessToken(signInDto);
@@ -72,7 +74,7 @@ public class AuthService {
   //  만료시간 refresh 토큰 도입 이후 짧게 테스트
   private String createAccessToken(LoginUserResponse signInDto) {
     return Jwts.builder()
-        .claim("id", signInDto.id())
+        .claim("id", String.valueOf(signInDto.id()))
         .claim("role", signInDto.role().name())
         .issuer(issuer)
         .issuedAt(new Date(System.currentTimeMillis()))
