@@ -23,3 +23,6 @@ eureka:
 jwt:
   secret: ${JWT_SECRET}
   access-expiration: ${JWT_ACCESS_EXPIRATION}
+common:
+  jpa:
+    enabled: false
