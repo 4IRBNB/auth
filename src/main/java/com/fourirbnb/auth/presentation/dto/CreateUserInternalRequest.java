@@ -1,5 +1,6 @@
 package com.fourirbnb.auth.presentation.dto;
 
+import com.fourirbnb.auth.domain.model.ApprovalStatus;
 import com.fourirbnb.auth.domain.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,4 +20,5 @@ public class CreateUserInternalRequest {
   private String phone;
   private String slackId;
   private Role role;
+  private ApprovalStatus status;
 }
