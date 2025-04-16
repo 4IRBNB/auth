@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class SignUpAuthRequest {
+public class SignUpUserRequest {
 
   @NotBlank(message = "아이디 필수")
   @Email(message = "이메일 형식으로 입력해주세요.")
@@ -28,7 +28,7 @@ public class SignUpAuthRequest {
 
   @NotBlank(message = "사용자 이름 필수")
   private String username;
-  
+
   private String slackId;
 
   @Pattern(regexp = "^01[0-9]-\\d{3,4}-\\d{4}$", message = "전화번호 형식이 올바르지 않습니다.")

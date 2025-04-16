@@ -2,10 +2,11 @@ package com.fourirbnb.auth.presentation.controller;
 
 
 import com.fourirbnb.auth.application.service.AuthService;
+import com.fourirbnb.auth.domain.model.Role;
 import com.fourirbnb.auth.presentation.dto.ChangePasswordRequest;
 import com.fourirbnb.auth.presentation.dto.LoginUserRequest;
-import com.fourirbnb.auth.presentation.dto.SignUpAuthRequest;
-import com.fourirbnb.auth.presentation.dto.SignUpAuthResponse;
+import com.fourirbnb.auth.presentation.dto.SignUpUserRequest;
+import com.fourirbnb.auth.presentation.dto.SignUpUserResponse;
 import com.fourirbnb.common.exception.InvalidParameterException;
 import com.fourirbnb.common.response.BaseResponse;
 import com.fourirbnb.common.security.AuthenticatedUser;
@@ -28,11 +29,22 @@ public class AuthController {
   private final AuthService authService;
 
   @PostMapping("/signUp")
-  public BaseResponse<SignUpAuthResponse> registerUser(
-      @Valid @RequestBody SignUpAuthRequest request) {
+  public BaseResponse<SignUpUserResponse> userSignUp(
+      @Valid @RequestBody SignUpUserRequest request) {
     try {
-      authService.signUp(request);
-      return BaseResponse.SUCCESS(null, "회원가입 성공", HttpStatus.CREATED.value());
+      authService.signUp(request, Role.CUSTOMER);
+      return BaseResponse.SUCCESS(null, "유저 회원가입 성공", HttpStatus.CREATED.value());
+    } catch (InvalidParameterException e) {
+      return BaseResponse.FAIL(e.getMessage(), HttpStatus.BAD_REQUEST.value());
+    }
+  }
+
+  @PostMapping("/hostSignUp")
+  public BaseResponse<SignUpUserResponse> hostSignUp(
+      @Valid @RequestBody SignUpUserRequest request) {
+    try {
+      authService.signUp(request, Role.HOST);
+      return BaseResponse.SUCCESS(null, "호스트 회원가입 성공 승인대기중", HttpStatus.CREATED.value());
     } catch (InvalidParameterException e) {
       return BaseResponse.FAIL(e.getMessage(), HttpStatus.BAD_REQUEST.value());
     }

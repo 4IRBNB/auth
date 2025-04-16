@@ -2,7 +2,7 @@ package com.fourirbnb.auth.presentation.dto;
 
 import com.fourirbnb.auth.domain.model.Role;
 
-public record SignUpAuthResponse(
+public record SignUpUserResponse(
     String email,
     String password,
     String nickname,
