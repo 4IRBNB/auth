@@ -2,11 +2,14 @@ package com.fourirbnb.auth.presentation.controller;
 
 
 import com.fourirbnb.auth.application.service.AuthService;
+import com.fourirbnb.auth.presentation.dto.ChangePasswordRequest;
 import com.fourirbnb.auth.presentation.dto.LoginUserRequest;
 import com.fourirbnb.auth.presentation.dto.SignUpAuthRequest;
 import com.fourirbnb.auth.presentation.dto.SignUpAuthResponse;
 import com.fourirbnb.common.exception.InvalidParameterException;
 import com.fourirbnb.common.response.BaseResponse;
+import com.fourirbnb.common.security.AuthenticatedUser;
+import com.fourirbnb.common.security.UserInfo;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +45,14 @@ public class AuthController {
       return BaseResponse.FAIL("아이디와 비밀번호를 확인해주세요", HttpStatus.UNAUTHORIZED.value());
     }
     return BaseResponse.SUCCESS(token, "로그인 성공");
+  }
+
+  @PostMapping("/changePassword")
+  public BaseResponse<Void> changePassword(
+      @AuthenticatedUser UserInfo user, @RequestBody ChangePasswordRequest request) {
+    Long id = user.getUserId();
+    authService.changePassword(id, request);
+    return BaseResponse.SUCCESS(null, "비밀번호 변경이 성공하였습니다.", HttpStatus.OK.value());
   }
 
 }

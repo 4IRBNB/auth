@@ -32,7 +32,7 @@ ext {
 
 dependencies {
     //common-module
-    implementation("com.fourirbnb:common:1.2.4")
+    implementation("com.fourirbnb:common:1.4.0")
 
     // swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0'

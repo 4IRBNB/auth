@@ -1,0 +1,6 @@
+jwt:
+  secret: this-is-a-very-very-very-very-long-and-secure-dummy-secret-key-just-for-test
+  access-expiration: 3600
+common:
+  jpa:
+    enabled: false

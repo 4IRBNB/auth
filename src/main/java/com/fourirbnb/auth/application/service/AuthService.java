@@ -3,10 +3,12 @@ package com.fourirbnb.auth.application.service;
 
 import com.fourirbnb.auth.application.mapper.AuthDtoMapper;
 import com.fourirbnb.auth.infrastructure.UserFeignClient;
+import com.fourirbnb.auth.presentation.dto.ChangePasswordRequest;
 import com.fourirbnb.auth.presentation.dto.CreateUserInternalRequest;
 import com.fourirbnb.auth.presentation.dto.LoginUserRequest;
 import com.fourirbnb.auth.presentation.dto.LoginUserResponse;
 import com.fourirbnb.auth.presentation.dto.SignUpAuthRequest;
+import com.fourirbnb.auth.presentation.dto.UserInternalResponse;
 import com.fourirbnb.common.exception.InternalServerException;
 import com.fourirbnb.common.exception.InvalidParameterException;
 import com.fourirbnb.common.exception.ResourceNotFoundException;
@@ -82,4 +84,31 @@ public class AuthService {
         .signWith(secretKey, Jwts.SIG.HS512)
         .compact();
   }
+
+  public void changePassword(Long id, ChangePasswordRequest request) {
+    String currentPassword = request.getCurrentPassword();
+    String newPassword = request.getNewPassword();
+
+    ResponseEntity<UserInternalResponse> response = userFeignClient.getEncryptedPassword(id);
+    UserInternalResponse body = response.getBody();
+
+    if (currentPassword == null || newPassword == null) {
+      throw new InvalidParameterException("비밀번호를 입력해주세요");
+    }
+    if (body == null) {
+      throw new InvalidParameterException("회원 정보가 없습니다");
+    }
+
+    //기존
+    String password = body.password();
+
+    if (!passwordEncoder.matches(currentPassword, password)) {
+      throw new InvalidParameterException("기존 비밀번호가 일치하지 않습니다.");
+    }
+
+    String encodeNewPassword = passwordEncoder.encode(newPassword);
+    userFeignClient.updatePassword(id, encodeNewPassword);
+  }
+
+  
 }
